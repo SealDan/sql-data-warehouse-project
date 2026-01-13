@@ -1,3 +1,18 @@
+/*
+===============================================================================
+DDL Script: Bronze Layer Table Creation
+===============================================================================
+Purpose:
+    This script defines the table structures within the 'bronze' schema.
+    Any existing tables are dropped and recreated to ensure the schema
+    reflects the latest DDL definitions.
+
+Usage:
+    Execute this script whenever the Bronze layer table structures need
+    to be refreshed or re-initialized.
+===============================================================================
+*/
+
 IF OBJECT_ID('bronze.crm_cust_info', 'U') IS NOT NULL
     DROP TABLE bronze.crm_cust_info;
 GO
@@ -76,4 +91,5 @@ CREATE TABLE bronze.erp_px_cat_g1v2 (
     subcat       NVARCHAR(50),
     maintenance  NVARCHAR(50)
 );
+
 GO
