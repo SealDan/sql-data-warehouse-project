@@ -1,3 +1,18 @@
+/*
+===============================================================================
+DDL Script: Bronze Layer Table Creation
+===============================================================================
+Purpose:
+    This script defines the table structures within the 'bronze' schema.
+    Any existing tables are dropped and recreated to ensure the schema
+    reflects the latest DDL definitions.
+
+Usage:
+    Execute this script whenever the Bronze layer table structures need
+    to be refreshed or re-initialized.
+===============================================================================
+*/
+
 CREATE OR ALTER PROCEDURE bronze.load_bronze AS
 BEGIN
     DECLARE 
@@ -154,3 +169,4 @@ BEGIN
         PRINT '================================================';
     END CATCH
 END;
+
