@@ -1,15 +1,22 @@
 /*
 ===============================================================================
-DDL Script: Bronze Layer Table Creation
+Stored Procedure: Bronze Layer Data Load (Source → Bronze)
 ===============================================================================
 Purpose:
-    This script defines the table structures within the 'bronze' schema.
-    Any existing tables are dropped and recreated to ensure the schema
-    reflects the latest DDL definitions.
+    This stored procedure ingests raw data from external CSV files into
+    tables within the 'bronze' schema.
 
-Usage:
-    Execute this script whenever the Bronze layer table structures need
-    to be refreshed or re-initialized.
+    The procedure performs the following steps:
+    - Clears existing data from Bronze tables.
+    - Loads fresh data using the BULK INSERT operation.
+
+Parameters:
+    None.
+    This procedure does not require input parameters and does not return
+    any values.
+
+Execution:
+    EXEC bronze.load_bronze;
 ===============================================================================
 */
 
@@ -169,4 +176,5 @@ BEGIN
         PRINT '================================================';
     END CATCH
 END;
+
 
