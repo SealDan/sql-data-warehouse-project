@@ -151,8 +151,21 @@ BEGIN
         PRINT '>> Load Duration: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' seconds';
         PRINT '>> -------------';
 
+		SET @end_time = GETDATE();
+        PRINT '>> Load Duration: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+        PRINT '>> -------------';
+
+		PRINT '------------------------------------------------';
+		PRINT 'Loading ERP Tables';
+		PRINT '------------------------------------------------';
+
         -- Loading erp_cust_az12
-        WITH cust_clean AS (
+        SET @start_time = GETDATE();
+		PRINT '>> Truncating Table: silver.erp_cust_az12';
+		TRUNCATE TABLE silver.erp_cust_az12;
+		PRINT '>> Inserting Data Into: silver.erp_cust_az12';
+
+		WITH cust_clean AS (
 		SELECT
 			CASE 
 				WHEN cid LIKE 'NAS%' THEN SUBSTRING(cid, 4, LEN(cid)) -- Remove not needed 'NAS' prefix
@@ -178,13 +191,6 @@ BEGIN
 				ELSE 'Unknown'
 			END AS gen -- Normalized gender values and handled missing values
 		FROM cust_clean;
-	    SET @end_time = GETDATE();
-        PRINT '>> Load Duration: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' seconds';
-        PRINT '>> -------------';
-
-		PRINT '------------------------------------------------';
-		PRINT 'Loading ERP Tables';
-		PRINT '------------------------------------------------';
 
         -- Loading erp_loc_a101
         SET @start_time = GETDATE();
