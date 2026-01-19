@@ -1,3 +1,15 @@
+/*
+===============================================================================
+DDL Script: Create Silver Tables
+===============================================================================
+Description:
+    This script sets up the tables within the 'silver' schema, removing any 
+    existing versions before creating new ones.
+    Use this script to recreate or reset the DDL structure for Silver tables.
+===============================================================================
+*/
+
+
 IF OBJECT_ID('silver.crm_cust_info', 'U') IS NOT NULL
     DROP TABLE silver.crm_cust_info;
 GO
