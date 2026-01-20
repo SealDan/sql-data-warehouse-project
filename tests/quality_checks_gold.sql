@@ -1,0 +1,89 @@
+/*
+===============================================================================
+Gold Layer Data Quality Checks
+===============================================================================
+Description:
+    This script runs a series of validation checks to confirm the accuracy,
+    consistency, and reliability of data in the Gold Layer. These checks verify:
+        - Surrogate key uniqueness within dimension tables.
+        - Referential integrity between fact and dimension tables.
+        - Correct relationships and structure within the analytical data model.
+
+Usage:
+    - Review and address any issues identified by these checks.
+===============================================================================
+*/
+
+-- ====================================================================
+-- Checking 'gold.dim_customers'
+-- ====================================================================
+
+-- Validate join logic to ensure no duplicate customer records are created
+SELECT cst_id, COUNT(*) FROM (
+SELECT
+	ci.cst_id,
+	ci.cst_key,
+	ci.cst_firstname,
+	ci.cst_lastname,
+	ci.cst_marital_status,
+	ci.cst_gndr,
+	ci.cst_create_date,
+	ca.bdate,
+	ca.gen,
+	la.cntry
+FROM silver.crm_cust_info ci
+LEFT JOIN silver.erp_cust_az12 ca
+ON	      ci.cst_key = ca.cid
+LEFT JOIN silver.erp_loc_a101 la
+ON	      ci.cst_key = la.cid
+)t GROUP BY cst_id
+HAVING COUNT(*) > 1
+
+-- Compare gender values across source systems and validate master data logic
+SELECT DISTINCT
+	ci.cst_gndr,
+	ca.gen,
+	CASE WHEN ci.cst_gndr != 'Unknown' THEN ci.cst_gndr -- CRM is Master File
+		ELSE COALESCE(ca.gen, 'Unknown')
+	END AS new_gen
+FROM silver.crm_cust_info ci
+LEFT JOIN silver.erp_cust_az12 ca
+ON		ci.cst_key = ca.cid
+LEFT JOIN silver.erp_loc_a101 la
+ON		ci.cst_key = la.cid
+ORDER BY 1,2
+
+
+-- Check for Uniqueness of Customer Key in gold.dim_customers
+-- Expectation is no results
+SELECT 
+    customer_key,
+    COUNT(*) AS duplicate_count
+FROM gold.dim_customers
+GROUP BY customer_key
+HAVING COUNT(*) > 1;
+
+
+-- ====================================================================
+-- Checking 'gold.product_key'
+-- ====================================================================
+-- Check for Uniqueness of Product Key in gold.dim_products
+-- Expectation: No results 
+SELECT 
+    product_key,
+    COUNT(*) AS duplicate_count
+FROM gold.dim_products
+GROUP BY product_key
+HAVING COUNT(*) > 1;
+
+-- ====================================================================
+-- Checking 'gold.fact_sales'
+-- ====================================================================
+-- Validate referential integrity between fact table and dimension tables
+-- Identify records with missing or invalid dimension references
+SELECT * FROM gold.fact_sales f
+LEFT JOIN gold.dim_customers c
+ON       c.customer_key = f.customer_key
+LEFT JOIN gold.dim_products p
+ON       p.product_key = f.product_key
+WHERE p.product_key Is NULL OR c.customer_key IS NULL
